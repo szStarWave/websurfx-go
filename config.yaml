@@ -1,0 +1,10 @@
+server:
+  address: "127.0.0.1:8090"
+search:
+  timeout: 10s
+  cache_ttl: 5m
+  engines:
+    - bing
+    - so360
+    - sogou
+    - zhwikipedia
