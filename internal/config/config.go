@@ -17,6 +17,9 @@ type ServerConfig struct {
 	Address       string          `yaml:"address"`
 	RateLimit     RateLimitConfig `yaml:"rate_limit"`
 	LogStructured bool            `yaml:"log_structured"`
+	CORS          bool            `yaml:"cors"`
+	Compression   bool            `yaml:"compression"`
+	CacheHeaders  bool            `yaml:"cache_headers"`
 }
 
 type SearchConfig struct {

@@ -40,6 +40,9 @@ func main() {
 		ProxyURL:        cfg.Search.ProxyURL,
 		UserAgentPolicy: cfg.Search.UserAgentPolicy,
 		RateLimit:       cfg.Server.RateLimit,
+		CORS:            cfg.Server.CORS,
+		Compression:     cfg.Server.Compression,
+		CacheHeaders:    cfg.Server.CacheHeaders,
 		Filters: websurfx.FilterOptions{
 			Allowlist: cfg.Search.Filters.Allowlist,
 			Blocklist: cfg.Search.Filters.Blocklist,

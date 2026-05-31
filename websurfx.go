@@ -40,12 +40,18 @@ type Options struct {
 	UserAgentPolicy string
 	RateLimit       RateLimitOptions
 	Filters         FilterOptions
+	CORS            bool
+	Compression     bool
+	CacheHeaders    bool
 }
 
 type Client struct {
 	service         Service
 	rateLimit       RateLimitOptions
 	userAgentPolicy string
+	cors            bool
+	compression     bool
+	cacheHeaders    bool
 }
 
 type userAgentService struct {
@@ -122,6 +128,9 @@ func New(opts Options) (*Client, error) {
 		service:         search.NewAggregatorWithClient(httpClient, cache.NewMemory(cacheTTL), engines, opts.Filters),
 		rateLimit:       opts.RateLimit,
 		userAgentPolicy: opts.UserAgentPolicy,
+		cors:            opts.CORS,
+		compression:     opts.Compression,
+		cacheHeaders:    opts.CacheHeaders,
 	}, nil
 }
 
@@ -141,6 +150,15 @@ func (c *Client) Handler() http.Handler {
 	}
 	if c.rateLimit.Enabled {
 		handler = httpapi.WithRateLimit(handler, c.rateLimit.RequestsPerMinute)
+	}
+	if c.cacheHeaders {
+		handler = httpapi.WithCacheHeaders(handler)
+	}
+	if c.cors {
+		handler = httpapi.WithCORS(handler)
+	}
+	if c.compression {
+		handler = httpapi.WithCompression(handler)
 	}
 	return handler
 }

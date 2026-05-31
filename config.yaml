@@ -1,6 +1,9 @@
 server:
   address: "127.0.0.1:8090"
   log_structured: true
+  cors: false
+  compression: true
+  cache_headers: true
   rate_limit:
     enabled: true
     requests_per_minute: 60

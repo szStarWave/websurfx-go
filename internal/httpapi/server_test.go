@@ -56,6 +56,8 @@ func TestBasicHTTPRoutes(t *testing.T) {
 	handler := mustRoutes(t)
 	cases := map[string]int{
 		"/api/search":     http.StatusBadRequest,
+		"/about":          http.StatusOK,
+		"/settings":       http.StatusOK,
 		"/healthz":        http.StatusOK,
 		"/robots.txt":     http.StatusOK,
 		"/opensearch.xml": http.StatusOK,
@@ -92,6 +94,29 @@ func TestRateLimit(t *testing.T) {
 	}
 	if second := request(t, handler, "/"); second.Code != http.StatusTooManyRequests {
 		t.Fatalf("second request status %d", second.Code)
+	}
+}
+
+func TestOptionalMiddleware(t *testing.T) {
+	handler := WithCompression(WithCORS(WithCacheHeaders(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte("hello"))
+	}))))
+	req := httptest.NewRequest(http.MethodGet, "/robots.txt", nil)
+	req.Header.Set("Accept-Encoding", "gzip")
+	resp := httptest.NewRecorder()
+	handler.ServeHTTP(resp, req)
+
+	if resp.Code != http.StatusOK {
+		t.Fatalf("unexpected status %d", resp.Code)
+	}
+	if got := resp.Header().Get("Access-Control-Allow-Origin"); got != "*" {
+		t.Fatalf("missing CORS header: %q", got)
+	}
+	if got := resp.Header().Get("Cache-Control"); got != "public, max-age=3600" {
+		t.Fatalf("unexpected cache header: %q", got)
+	}
+	if got := resp.Header().Get("Content-Encoding"); got != "gzip" {
+		t.Fatalf("missing gzip header: %q", got)
 	}
 }
 

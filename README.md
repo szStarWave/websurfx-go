@@ -1,17 +1,21 @@
 # Websurfx Go
 
-A Chinese-first web search library and executable inspired by the Rust Websurfx project. This Go version is intentionally compact: it runs as a normal exe and can also be embedded as `github.com/szStarWave/websurfx-go` from other Go programs.
+**中文文档:** [README.zh-CN.md](README.zh-CN.md)
 
-## Scope
+Websurfx Go is a Chinese-first web search library and normal executable inspired by the Rust Websurfx project. It is designed to stay small enough to maintain long term: no Redis, no Docker, and no required service stack.
 
+## Features
+
+- Runs as a single executable.
+- Can be embedded as the Go package `github.com/szStarWave/websurfx-go`.
 - Web search only.
 - Default engines: Bing Chinese, 360 Search, Sogou, and Chinese Wikipedia.
 - Optional engines: DuckDuckGo, Brave, Qwant, Startpage, Yahoo, and configurable Searx.
-- JSON API, `/search` compatibility route, and a minimal server-rendered frontend.
-- In-memory cache, proxy support, simple allow/block filters, and in-process HTTP rate limiting.
-- No Redis, no Docker, no image/video/news search, no cookie settings, no theme system, and no complex safe-search tiers.
+- JSON API, `/search` compatibility route, OpenSearch metadata, health check, robots.txt, about page, and read-only settings page.
+- In-memory cache, proxy support, configurable User-Agent policy, simple allow/block filters, optional CORS, gzip compression, cache headers, and in-process HTTP rate limiting.
+- Upstream failures are returned as `engineErrorsInfo` instead of being hidden as empty results.
 
-## Run As An Exe
+## Quick Start
 
 ```powershell
 go test ./...
@@ -37,6 +41,89 @@ Build a normal executable:
 go build -o bin/websurfx-go.exe ./cmd/websearch
 ```
 
+## Configuration
+
+The executable reads a YAML file with `-config`:
+
+```powershell
+go run ./cmd/websearch -config config.yaml
+```
+
+Minimal config:
+
+```yaml
+server:
+  address: "127.0.0.1:8090"
+search:
+  engines:
+    - bing
+    - so360
+    - sogou
+    - zhwikipedia
+```
+
+Full example:
+
+```yaml
+server:
+  address: "127.0.0.1:8090"
+  log_structured: true
+  cors: false
+  compression: true
+  cache_headers: true
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
+
+search:
+  timeout: 10s
+  request_timeout: 10s
+  cache_ttl: 5m
+  proxy_url: ""
+  user_agent_policy: desktop
+  engines:
+    - bing
+    - so360
+    - sogou
+    - zhwikipedia
+  filters:
+    allowlist: []
+    blocklist: []
+```
+
+Supported engine names:
+
+```text
+bing
+so360
+sogou
+zhwikipedia
+duckduckgo
+brave
+qwant
+startpage
+yahoo
+searx
+searx:https://your-searx-instance.example
+```
+
+Configuration notes:
+
+- `server.address`: HTTP listen address.
+- `server.log_structured`: write JSON logs when true, text logs when false.
+- `server.cors`: add permissive CORS headers for HTTP API use from browsers.
+- `server.compression`: gzip responses when the client supports it.
+- `server.cache_headers`: add basic `Cache-Control` headers.
+- `server.rate_limit.enabled`: enable in-process per-client HTTP rate limiting.
+- `server.rate_limit.requests_per_minute`: request budget per client IP.
+- `search.timeout` / `search.request_timeout`: upstream HTTP timeout. `request_timeout` is accepted as a clearer alias.
+- `search.cache_ttl`: in-memory cache lifetime.
+- `search.proxy_url`: optional HTTP proxy URL, for example `http://127.0.0.1:7890`.
+- `search.user_agent_policy`: `desktop`, `mobile`, or a custom User-Agent string.
+- `search.engines`: enabled engines in request fan-out order.
+- `search.filters.allowlist`: optional substrings that result URL/title/description must contain.
+- `search.filters.blocklist`: optional substrings that drop matching results.
+
 ## Use As A Library
 
 ```go
@@ -52,8 +139,10 @@ import (
 
 func main() {
     client, err := websurfx.New(websurfx.Options{
-        Timeout:  10 * time.Second,
-        CacheTTL: 5 * time.Minute,
+        Timeout:      10 * time.Second,
+        CacheTTL:     5 * time.Minute,
+        Compression:  true,
+        CacheHeaders: true,
     })
     if err != nil {
         panic(err)
@@ -69,7 +158,15 @@ func main() {
 }
 ```
 
-## Response Shape
+You can also use the HTTP handler from a Go application:
+
+```go
+handler := client.Handler()
+```
+
+`Client.Search` does not apply HTTP-only middleware such as CORS, compression, cache headers, or rate limiting. Those only apply to `Client.Handler`.
+
+## API Response
 
 ```json
 {
@@ -95,3 +192,18 @@ func main() {
   "duration": "1.2s"
 }
 ```
+
+Error kinds:
+
+- `RequestError`: HTTP/network/upstream status failure.
+- `EmptyResultSet`: the upstream clearly reported no results.
+- `UnexpectedError`: parser or page structure did not match expectations.
+
+## Deliberately Out Of Scope
+
+- Redis.
+- Docker deployment files.
+- Image, video, or news search.
+- Cookie-backed settings.
+- Theme system.
+- Complex safe-search tiers.
