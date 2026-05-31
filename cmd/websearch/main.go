@@ -28,26 +28,7 @@ func main() {
 		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, nil)))
 	}
 
-	engines, err := websurfx.BuildEngines(cfg.Search.Engines)
-	if err != nil {
-		slog.Error("build engines", "error", err)
-		os.Exit(1)
-	}
-	client, err := websurfx.New(websurfx.Options{
-		Engines:         engines,
-		Timeout:         cfg.Search.Timeout,
-		CacheTTL:        cfg.Search.CacheTTL,
-		ProxyURL:        cfg.Search.ProxyURL,
-		UserAgentPolicy: cfg.Search.UserAgentPolicy,
-		RateLimit:       cfg.Server.RateLimit,
-		CORS:            cfg.Server.CORS,
-		Compression:     cfg.Server.Compression,
-		CacheHeaders:    cfg.Server.CacheHeaders,
-		Filters: websurfx.FilterOptions{
-			Allowlist: cfg.Search.Filters.Allowlist,
-			Blocklist: cfg.Search.Filters.Blocklist,
-		},
-	})
+	client, err := websurfx.NewFromConfig(cfg)
 	if err != nil {
 		slog.Error("build client", "error", err)
 		os.Exit(1)

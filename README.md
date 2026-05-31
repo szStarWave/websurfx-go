@@ -9,8 +9,8 @@ Websurfx Go is a Chinese-first web search library and normal executable inspired
 - Runs as a single executable.
 - Can be embedded as the Go package `github.com/szStarWave/websurfx-go`.
 - Web search only.
-- Default engines: Bing Chinese, 360 Search, Sogou, and Chinese Wikipedia.
-- Optional engines: DuckDuckGo, Brave, Qwant, Startpage, Yahoo, and configurable Searx.
+- Built-in default config enables every implemented engine: Bing Chinese, 360 Search, Sogou, Chinese Wikipedia, DuckDuckGo, Brave, Qwant, Startpage, Yahoo, and Searx.
+- `ChineseDefaultEngines()` is available when you want the smaller Chinese-first set.
 - JSON API, `/search` compatibility route, OpenSearch metadata, health check, robots.txt, about page, and read-only settings page.
 - In-memory cache, proxy support, configurable User-Agent policy, simple allow/block filters, optional CORS, gzip compression, cache headers, and in-process HTTP rate limiting.
 - Upstream failures are returned as `engineErrorsInfo` instead of being hidden as empty results.
@@ -49,6 +49,8 @@ The executable reads a YAML file with `-config`:
 go run ./cmd/websearch -config config.yaml
 ```
 
+The config path is fully customizable. If the file does not exist, Websurfx Go falls back to a built-in default config that enables every implemented engine.
+
 Minimal config:
 
 ```yaml
@@ -60,6 +62,12 @@ search:
     - so360
     - sogou
     - zhwikipedia
+    - duckduckgo
+    - brave
+    - qwant
+    - startpage
+    - yahoo
+    - searx
 ```
 
 Full example:
@@ -86,6 +94,12 @@ search:
     - so360
     - sogou
     - zhwikipedia
+    - duckduckgo
+    - brave
+    - qwant
+    - startpage
+    - yahoo
+    - searx
   filters:
     allowlist: []
     blocklist: []
@@ -138,12 +152,7 @@ import (
 )
 
 func main() {
-    client, err := websurfx.New(websurfx.Options{
-        Timeout:      10 * time.Second,
-        CacheTTL:     5 * time.Minute,
-        Compression:  true,
-        CacheHeaders: true,
-    })
+    client, err := websurfx.NewFromConfigFile("my-config.yaml")
     if err != nil {
         panic(err)
     }
@@ -157,6 +166,8 @@ func main() {
     }
 }
 ```
+
+`NewFromConfigFile` accepts any path. Passing an empty path or a path that does not exist uses `DefaultConfig()`, which enables `AllEngines()`. If you want the smaller Chinese-first set, use `ChineseDefaultEngines()`.
 
 You can also use the HTTP handler from a Go application:
 

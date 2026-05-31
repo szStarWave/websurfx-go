@@ -18,13 +18,12 @@ search:
     - so360
     - sogou
     - zhwikipedia
-  # Disabled by default; enable when you want broader web coverage.
-  # - duckduckgo
-  # - brave
-  # - qwant
-  # - startpage
-  # - yahoo
-  # - searx:https://searx.example.org
+    - duckduckgo
+    - brave
+    - qwant
+    - startpage
+    - yahoo
+    - searx
   filters:
     allowlist: []
     blocklist: []

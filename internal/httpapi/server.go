@@ -299,7 +299,7 @@ const indexHTML = `<!doctype html>
       {{if .Response.HasNextPage}}<a href="/search?q={{.Query}}&page={{plus .Response.Page 1}}">下一页</a>{{end}}
     </nav>
   {{else}}
-    <p class="meta">默认引擎：Bing 中文、360 搜索、搜狗、中文 Wikipedia。当前只做网页搜索。</p>
+    <p class="meta">默认启用全部已实现网页搜索引擎；如需更小的中文优先集合，请在配置中只保留 Bing 中文、360 搜索、搜狗、中文 Wikipedia。</p>
   {{end}}
 </main>
 </body>

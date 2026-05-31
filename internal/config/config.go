@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/szStarWave/websurfx-go/internal/engine"
 	"gopkg.in/yaml.v3"
 )
 
@@ -44,8 +45,14 @@ type FilterConfig struct {
 }
 
 func Load(path string) (Config, error) {
+	if path == "" {
+		return Default(), nil
+	}
 	data, err := os.ReadFile(path)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return Default(), nil
+		}
 		return Config{}, err
 	}
 
@@ -53,11 +60,19 @@ func Load(path string) (Config, error) {
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return Config{}, err
 	}
-	cfg = withDefaults(cfg)
+	cfg = WithDefaults(cfg)
 	if err := Validate(cfg); err != nil {
 		return Config{}, err
 	}
 	return cfg, nil
+}
+
+func Default() Config {
+	return WithDefaults(Config{
+		Search: SearchConfig{
+			Engines: engine.AllNames(),
+		},
+	})
 }
 
 func Validate(cfg Config) error {
@@ -79,7 +94,7 @@ func Validate(cfg Config) error {
 	return nil
 }
 
-func withDefaults(cfg Config) Config {
+func WithDefaults(cfg Config) Config {
 	if cfg.Server.Address == "" {
 		cfg.Server.Address = "127.0.0.1:8090"
 	}
@@ -103,7 +118,7 @@ func withDefaults(cfg Config) Config {
 		cfg.Search.EnabledEngines = cfg.Search.Engines
 	}
 	if len(cfg.Search.Engines) == 0 {
-		cfg.Search.Engines = []string{"bing", "so360", "sogou", "zhwikipedia"}
+		cfg.Search.Engines = engine.AllNames()
 		cfg.Search.EnabledEngines = cfg.Search.Engines
 	}
 	if cfg.Search.UserAgentPolicy == "" {

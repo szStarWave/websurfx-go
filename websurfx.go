@@ -67,12 +67,59 @@ func LoadConfig(path string) (Config, error) {
 	return config.Load(path)
 }
 
+func DefaultConfig() Config {
+	return config.Default()
+}
+
+func WithConfigDefaults(cfg Config) Config {
+	return config.WithDefaults(cfg)
+}
+
 func DefaultEngines() []string {
+	return AllEngines()
+}
+
+func ChineseDefaultEngines() []string {
 	return []string{"bing", "so360", "sogou", "zhwikipedia"}
+}
+
+func AllEngines() []string {
+	return engine.AllNames()
 }
 
 func BuildEngines(names []string) ([]Engine, error) {
 	return engine.Build(names)
+}
+
+func NewFromConfig(cfg Config) (*Client, error) {
+	cfg = WithConfigDefaults(cfg)
+	engines, err := BuildEngines(cfg.Search.Engines)
+	if err != nil {
+		return nil, err
+	}
+	return New(Options{
+		Engines:         engines,
+		Timeout:         cfg.Search.Timeout,
+		CacheTTL:        cfg.Search.CacheTTL,
+		ProxyURL:        cfg.Search.ProxyURL,
+		UserAgentPolicy: cfg.Search.UserAgentPolicy,
+		RateLimit:       cfg.Server.RateLimit,
+		CORS:            cfg.Server.CORS,
+		Compression:     cfg.Server.Compression,
+		CacheHeaders:    cfg.Server.CacheHeaders,
+		Filters: FilterOptions{
+			Allowlist: cfg.Search.Filters.Allowlist,
+			Blocklist: cfg.Search.Filters.Blocklist,
+		},
+	})
+}
+
+func NewFromConfigFile(path string) (*Client, error) {
+	cfg, err := LoadConfig(path)
+	if err != nil {
+		return nil, err
+	}
+	return NewFromConfig(cfg)
 }
 
 func NewService(timeout time.Duration, cacheTTL time.Duration, engines []Engine) Service {
@@ -80,6 +127,7 @@ func NewService(timeout time.Duration, cacheTTL time.Duration, engines []Engine)
 }
 
 func NewServiceFromConfig(cfg Config) (Service, error) {
+	cfg = WithConfigDefaults(cfg)
 	engines, err := BuildEngines(cfg.Search.Engines)
 	if err != nil {
 		return nil, err

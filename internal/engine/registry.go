@@ -17,6 +17,21 @@ import (
 	"github.com/szStarWave/websurfx-go/internal/search"
 )
 
+func AllNames() []string {
+	return []string{
+		"bing",
+		"so360",
+		"sogou",
+		"zhwikipedia",
+		"duckduckgo",
+		"brave",
+		"qwant",
+		"startpage",
+		"yahoo",
+		"searx",
+	}
+}
+
 func Build(names []string) ([]search.Engine, error) {
 	engines := make([]search.Engine, 0, len(names))
 	for _, name := range names {
