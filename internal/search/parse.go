@@ -42,3 +42,37 @@ func AbsURL(base, href string) string {
 	}
 	return root.ResolveReference(parsed).String()
 }
+
+func CanonicalURL(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+	parsed, err := url.Parse(raw)
+	if err != nil {
+		return raw
+	}
+	if target := redirectTarget(parsed); target != "" {
+		return CanonicalURL(target)
+	}
+	parsed.Fragment = ""
+	parsed.Host = strings.ToLower(parsed.Host)
+	if parsed.Path != "/" {
+		parsed.Path = strings.TrimRight(parsed.Path, "/")
+	}
+	return parsed.String()
+}
+
+func redirectTarget(parsed *url.URL) string {
+	for _, key := range []string{"url", "u", "target", "to"} {
+		if value := parsed.Query().Get(key); value != "" {
+			if decoded, err := url.QueryUnescape(value); err == nil {
+				value = decoded
+			}
+			if strings.HasPrefix(value, "http://") || strings.HasPrefix(value, "https://") {
+				return value
+			}
+		}
+	}
+	return ""
+}

@@ -54,10 +54,10 @@ func searchURL(query search.Query) string {
 func Parse(body []byte) ([]search.Result, *search.EngineError) {
 	var parsed response
 	if err := json.Unmarshal(body, &parsed); err != nil {
-		return nil, &search.EngineError{Type: search.ErrorParse, Detail: err.Error()}
+		return nil, &search.EngineError{Kind: search.ErrorUnexpected, Message: err.Error()}
 	}
 	if len(parsed.Query.Search) == 0 {
-		return nil, &search.EngineError{Type: search.ErrorEmptyResult}
+		return nil, &search.EngineError{Kind: search.ErrorEmptyResult}
 	}
 	results := make([]search.Result, 0, len(parsed.Query.Search))
 	for _, item := range parsed.Query.Search {

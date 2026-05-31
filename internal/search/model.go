@@ -19,18 +19,20 @@ type Result struct {
 }
 
 type EngineError struct {
-	Engine string `json:"engine"`
-	Type   string `json:"type"`
-	Detail string `json:"detail,omitempty"`
+	Engine  string `json:"engine"`
+	Kind    string `json:"kind"`
+	Message string `json:"message,omitempty"`
 }
 
 type Response struct {
-	Query    string        `json:"query"`
-	Page     int           `json:"page"`
-	Results  []Result      `json:"results"`
-	Errors   []EngineError `json:"errors"`
-	Cached   bool          `json:"cached"`
-	Duration string        `json:"duration"`
+	Query            string        `json:"query"`
+	Page             int           `json:"page"`
+	HasNextPage      bool          `json:"hasNextPage"`
+	Results          []Result      `json:"results"`
+	EngineErrorsInfo []EngineError `json:"engineErrorsInfo"`
+	Errors           []EngineError `json:"-"`
+	Cached           bool          `json:"cached"`
+	Duration         string        `json:"duration"`
 }
 
 type Engine interface {
@@ -41,9 +43,32 @@ type Engine interface {
 const (
 	ErrorEmptyResult = "EmptyResultSet"
 	ErrorRequest     = "RequestError"
-	ErrorParse       = "ParseError"
 	ErrorUnexpected  = "UnexpectedError"
 )
+
+type FilterOptions struct {
+	Allowlist []string
+	Blocklist []string
+}
+
+type contextKey string
+
+const userAgentKey contextKey = "user-agent"
+
+func WithUserAgent(ctx context.Context, userAgent string) context.Context {
+	if userAgent == "" {
+		return ctx
+	}
+	return context.WithValue(ctx, userAgentKey, userAgent)
+}
+
+func UserAgentFromContext(ctx context.Context) string {
+	value, _ := ctx.Value(userAgentKey).(string)
+	if value == "" {
+		return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+	}
+	return value
+}
 
 type Service interface {
 	Search(ctx context.Context, query Query) Response

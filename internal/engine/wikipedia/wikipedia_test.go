@@ -31,7 +31,7 @@ func TestParseEmptyFixture(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, engineErr := Parse(body)
-	if engineErr == nil || engineErr.Type != search.ErrorEmptyResult {
+	if engineErr == nil || engineErr.Kind != search.ErrorEmptyResult {
 		t.Fatalf("expected empty result error, got %#v", engineErr)
 	}
 }

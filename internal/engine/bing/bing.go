@@ -48,10 +48,10 @@ func searchURL(query search.Query) string {
 func Parse(body []byte) ([]search.Result, *search.EngineError) {
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(body))
 	if err != nil {
-		return nil, &search.EngineError{Type: search.ErrorParse, Detail: err.Error()}
+		return nil, &search.EngineError{Kind: search.ErrorUnexpected, Message: err.Error()}
 	}
 	if doc.Find(".b_no").Length() > 0 {
-		return nil, &search.EngineError{Type: search.ErrorEmptyResult}
+		return nil, &search.EngineError{Kind: search.ErrorEmptyResult}
 	}
 	var results []search.Result
 	doc.Find("li.b_algo").Each(func(_ int, item *goquery.Selection) {
@@ -70,7 +70,7 @@ func Parse(body []byte) ([]search.Result, *search.EngineError) {
 		})
 	})
 	if len(results) == 0 {
-		return nil, &search.EngineError{Type: search.ErrorParse, Detail: "selector matched zero results"}
+		return nil, &search.EngineError{Kind: search.ErrorUnexpected, Message: "selector matched zero results"}
 	}
 	return results, nil
 }

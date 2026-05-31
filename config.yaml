@@ -1,10 +1,27 @@
 server:
   address: "127.0.0.1:8090"
+  log_structured: true
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
 search:
   timeout: 10s
+  request_timeout: 10s
   cache_ttl: 5m
+  proxy_url: ""
+  user_agent_policy: desktop
   engines:
     - bing
     - so360
     - sogou
     - zhwikipedia
+  # Disabled by default; enable when you want broader web coverage.
+  # - duckduckgo
+  # - brave
+  # - qwant
+  # - startpage
+  # - yahoo
+  # - searx:https://searx.example.org
+  filters:
+    allowlist: []
+    blocklist: []
