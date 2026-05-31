@@ -15,8 +15,13 @@ import (
 )
 
 type Server struct {
-	service search.Service
-	index   *template.Template
+	service     search.Service
+	index       *template.Template
+	engineNames []string
+}
+
+type engineNameProvider interface {
+	EngineNames() []string
 }
 
 func New(service search.Service) (*Server, error) {
@@ -27,7 +32,11 @@ func New(service search.Service) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Server{service: service, index: index}, nil
+	var names []string
+	if provider, ok := service.(engineNameProvider); ok {
+		names = provider.EngineNames()
+	}
+	return &Server{service: service, index: index, engineNames: names}, nil
 }
 
 func (s *Server) Routes() http.Handler {
@@ -81,10 +90,12 @@ func (s *Server) indexHandler(w http.ResponseWriter, r *http.Request) {
 		Query    string
 		Response search.Response
 		HasQuery bool
+		Engines  []string
 	}{
 		Query:    query.Text,
 		Response: response,
 		HasQuery: strings.TrimSpace(query.Text) != "",
+		Engines:  s.engineNames,
 	})
 }
 
@@ -299,7 +310,11 @@ const indexHTML = `<!doctype html>
       {{if .Response.HasNextPage}}<a href="/search?q={{.Query}}&page={{plus .Response.Page 1}}">下一页</a>{{end}}
     </nav>
   {{else}}
-    <p class="meta">默认启用全部已实现网页搜索引擎；如需更小的中文优先集合，请在配置中只保留 Bing 中文、360 搜索、搜狗、中文 Wikipedia。</p>
+    {{if .Engines}}
+      <p class="meta">当前启用引擎：{{range .Engines}}<code>{{.}}</code> {{end}}</p>
+    {{else}}
+      <p class="meta">默认启用全部已实现网页搜索引擎；如需更小的中文优先集合，请在配置中只保留 Bing 中文、360 搜索、搜狗、中文 Wikipedia。</p>
+    {{end}}
   {{end}}
 </main>
 </body>

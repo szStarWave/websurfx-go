@@ -41,6 +41,12 @@ Build a normal executable:
 go build -o bin/websurfx-go.exe ./cmd/websearch
 ```
 
+Run a one-off search from the terminal:
+
+```powershell
+go run ./cmd/websearch -config config.yaml -once "中国" -page 1
+```
+
 ## Configuration
 
 The executable reads a YAML file with `-config`:
@@ -176,6 +182,12 @@ handler := client.Handler()
 ```
 
 `Client.Search` does not apply HTTP-only middleware such as CORS, compression, cache headers, or rate limiting. Those only apply to `Client.Handler`.
+
+Runnable examples:
+
+- `examples/basic`: run one library search.
+- `examples/custom-config`: create a config in Go code and use the Chinese-first engine set.
+- `examples/http-server`: embed the HTTP handler in your own Go server.
 
 ## API Response
 

@@ -44,6 +44,12 @@ http://127.0.0.1:8090/search?q=中国&json=true
 go build -o bin/websurfx-go.exe ./cmd/websearch
 ```
 
+在命令行里执行一次搜索并输出 JSON：
+
+```powershell
+go run ./cmd/websearch -config config.yaml -once "中国" -page 1
+```
+
 ## 配置文件
 
 程序通过 `-config` 读取 YAML：
@@ -194,6 +200,12 @@ handler := client.Handler()
 ```
 
 注意：`Client.Search` 是纯搜索调用，不会套用 CORS、gzip、cache header、rate limit 等 HTTP 中间件。这些只作用于 `Client.Handler()` 返回的 HTTP handler。
+
+可直接运行的示例：
+
+- `examples/basic`：作为库执行一次搜索。
+- `examples/custom-config`：在 Go 代码里自定义配置，并使用中文优先引擎集合。
+- `examples/http-server`：把 HTTP handler 嵌入你自己的 Go 服务。
 
 ## JSON 响应格式
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"log/slog"
 	"net/http"
@@ -15,6 +16,8 @@ import (
 
 func main() {
 	configPath := flag.String("config", "config.yaml", "path to YAML config")
+	once := flag.String("once", "", "run one search query and print JSON instead of starting the HTTP server")
+	page := flag.Int("page", 1, "search page for -once")
 	flag.Parse()
 
 	cfg, err := websurfx.LoadConfig(*configPath)
@@ -32,6 +35,17 @@ func main() {
 	if err != nil {
 		slog.Error("build client", "error", err)
 		os.Exit(1)
+	}
+
+	if *once != "" {
+		response := client.Search(context.Background(), websurfx.Query{Text: *once, Page: *page})
+		encoder := json.NewEncoder(os.Stdout)
+		encoder.SetIndent("", "  ")
+		if err := encoder.Encode(response); err != nil {
+			slog.Error("write response", "error", err)
+			os.Exit(1)
+		}
+		return
 	}
 
 	server := &http.Server{

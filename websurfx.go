@@ -63,6 +63,13 @@ func (s userAgentService) Search(ctx context.Context, q Query) Response {
 	return s.next.Search(search.WithUserAgent(ctx, s.userAgent), q)
 }
 
+func (s userAgentService) EngineNames() []string {
+	if provider, ok := s.next.(interface{ EngineNames() []string }); ok {
+		return provider.EngineNames()
+	}
+	return nil
+}
+
 func LoadConfig(path string) (Config, error) {
 	return config.Load(path)
 }

@@ -120,6 +120,7 @@ func (a *Aggregator) Search(ctx context.Context, query Query) Response {
 		Query:            query.Text,
 		Page:             query.Page,
 		HasNextPage:      len(results) >= 10,
+		Engines:          engineNames(a.engines),
 		Results:          results,
 		EngineErrorsInfo: errors,
 		Errors:           errors,
@@ -129,6 +130,19 @@ func (a *Aggregator) Search(ctx context.Context, query Query) Response {
 		a.cache.Set(key, out)
 	}
 	return out
+}
+
+func (a *Aggregator) EngineNames() []string {
+	return engineNames(a.engines)
+}
+
+func engineNames(engines []Engine) []string {
+	names := make([]string, 0, len(engines))
+	for _, engine := range engines {
+		names = append(names, engine.Name())
+	}
+	sort.Strings(names)
+	return names
 }
 
 func (a *Aggregator) allowed(result Result) bool {
@@ -210,10 +224,6 @@ func queryTerms(query string) []string {
 }
 
 func cacheKey(query Query, engines []Engine) string {
-	names := make([]string, 0, len(engines))
-	for _, engine := range engines {
-		names = append(names, engine.Name())
-	}
-	sort.Strings(names)
+	names := engineNames(engines)
 	return strings.Join([]string{query.Text, time.Now().Format("2006-01-02"), strings.Join(names, ","), strconv.Itoa(query.Page)}, "|")
 }

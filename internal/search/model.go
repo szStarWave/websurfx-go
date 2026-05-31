@@ -28,6 +28,7 @@ type Response struct {
 	Query            string        `json:"query"`
 	Page             int           `json:"page"`
 	HasNextPage      bool          `json:"hasNextPage"`
+	Engines          []string      `json:"engines"`
 	Results          []Result      `json:"results"`
 	EngineErrorsInfo []EngineError `json:"engineErrorsInfo"`
 	Errors           []EngineError `json:"-"`
