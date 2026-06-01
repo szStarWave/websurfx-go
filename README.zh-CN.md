@@ -70,6 +70,7 @@ search:
     - bing
     - so360
     - sogou
+    - shenma
     - zhwikipedia
     - duckduckgo
     - brave
@@ -102,6 +103,7 @@ search:
     - bing
     - so360
     - sogou
+    - shenma
     - zhwikipedia
     - duckduckgo
     - brave
@@ -141,6 +143,7 @@ engines:
   - bing
   - so360
   - sogou
+  - shenma
   - zhwikipedia
 ```
 
@@ -150,6 +153,7 @@ engines:
 bing
 so360
 sogou
+shenma
 zhwikipedia
 duckduckgo
 brave

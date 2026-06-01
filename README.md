@@ -9,7 +9,7 @@ Websurfx Go is a Chinese-first web search library and normal executable inspired
 - Runs as a single executable.
 - Can be embedded as the Go package `github.com/szStarWave/websurfx-go`.
 - Web search only.
-- Built-in default config enables every implemented engine: Bing Chinese, 360 Search, Sogou, Chinese Wikipedia, DuckDuckGo, Brave, Qwant, Startpage, Yahoo, and Searx.
+- Built-in default config enables every implemented engine: Bing Chinese, 360 Search, Sogou, Shenma, Chinese Wikipedia, DuckDuckGo, Brave, Qwant, Startpage, Yahoo, and Searx.
 - `ChineseDefaultEngines()` is available when you want the smaller Chinese-first set.
 - JSON API, `/search` compatibility route, OpenSearch metadata, health check, robots.txt, about page, and read-only settings page.
 - In-memory cache, proxy support, configurable User-Agent policy, simple allow/block filters, optional CORS, gzip compression, cache headers, and in-process HTTP rate limiting.
@@ -67,6 +67,7 @@ search:
     - bing
     - so360
     - sogou
+    - shenma
     - zhwikipedia
     - duckduckgo
     - brave
@@ -99,6 +100,7 @@ search:
     - bing
     - so360
     - sogou
+    - shenma
     - zhwikipedia
     - duckduckgo
     - brave
@@ -117,6 +119,7 @@ Supported engine names:
 bing
 so360
 sogou
+shenma
 zhwikipedia
 duckduckgo
 brave

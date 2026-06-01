@@ -50,12 +50,12 @@ func Parse(body []byte) ([]search.Result, *search.EngineError) {
 		return nil, &search.EngineError{Kind: search.ErrorEmptyResult}
 	}
 	var results []search.Result
-	doc.Find(".vrwrap, .rb, .result").Each(func(_ int, item *goquery.Selection) {
+	doc.Find(".vrwrap, .reactResult, .rb, .result").Each(func(_ int, item *goquery.Selection) {
 		if skipResultBlock(item) {
 			return
 		}
-		titleNode := item.Find("h2 a, h3 a, .pt a, .vr-title a, [id^='sogou_vr_'][id*='_title_']").First()
-		descNode := item.Find(".str_info, .txt-info, .ft, .text-layout, [id^='cacheresult_summary'], .base-ellipsis, .summary").First()
+		titleNode := item.Find("h2 a, h3 a, .pt a, .vr-title a, .title a, [id^='sogou_vr_'][id*='_title_']").First()
+		descNode := item.Find(".str_info, .txt-info, .ft, .text-layout, [id^='cacheresult_summary'], .base-ellipsis, .summary, .star-wiki").First()
 		href, ok := titleNode.Attr("href")
 		title := search.Text(titleNode)
 		if !ok || title == "" || skipResultLink(href) {
@@ -78,7 +78,7 @@ func skipResultBlock(item *goquery.Selection) bool {
 	class, _ := item.Attr("class")
 	id, _ := item.Attr("id")
 	haystack := strings.ToLower(class + " " + id)
-	for _, marker := range []string{"hintbox", "better-hint", "click-better-sugg", "ext_query"} {
+	for _, marker := range []string{"hintbox", "better-hint", "click-better-sugg", "ext_query", "video-list"} {
 		if strings.Contains(haystack, marker) {
 			return true
 		}

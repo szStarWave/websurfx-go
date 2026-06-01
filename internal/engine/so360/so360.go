@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 
@@ -45,7 +46,11 @@ func Parse(body []byte) ([]search.Result, *search.EngineError) {
 	if err != nil {
 		return nil, &search.EngineError{Kind: search.ErrorUnexpected, Message: err.Error()}
 	}
-	if doc.Find(".res-none").Length() > 0 {
+	pageText := search.Text(doc.Selection)
+	if strings.Contains(pageText, "请输入验证码") {
+		return nil, &search.EngineError{Kind: search.ErrorRequest, Message: "captcha or security verification page"}
+	}
+	if doc.Find(".res-none, #no-result").Length() > 0 {
 		return nil, &search.EngineError{Kind: search.ErrorEmptyResult}
 	}
 	var results []search.Result
