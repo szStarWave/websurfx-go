@@ -6,6 +6,8 @@ import (
 
 	"github.com/szStarWave/websurfx-go/internal/engine/bing"
 	"github.com/szStarWave/websurfx-go/internal/engine/brave"
+	"github.com/szStarWave/websurfx-go/internal/engine/cctv"
+	"github.com/szStarWave/websurfx-go/internal/engine/chinanews"
 	"github.com/szStarWave/websurfx-go/internal/engine/duckduckgo"
 	"github.com/szStarWave/websurfx-go/internal/engine/qwant"
 	"github.com/szStarWave/websurfx-go/internal/engine/searx"
@@ -24,6 +26,8 @@ func AllNames() []string {
 		"so360",
 		"sogou",
 		"toutiao",
+		"cctv",
+		"chinanews",
 		"zhwikipedia",
 		"duckduckgo",
 		"brave",
@@ -59,6 +63,10 @@ func Build(names []string) ([]search.Engine, error) {
 			engines = append(engines, sogou.New())
 		case "toutiao", "toutiao-search":
 			engines = append(engines, toutiao.New())
+		case "cctv", "cctv-search":
+			engines = append(engines, cctv.New())
+		case "chinanews", "china-news", "cns":
+			engines = append(engines, chinanews.New())
 		case "zhwikipedia", "zh-wikipedia", "wikipedia-zh":
 			engines = append(engines, wikipedia.NewZH())
 		default:
