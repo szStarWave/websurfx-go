@@ -87,7 +87,7 @@ func DefaultEngines() []string {
 }
 
 func ChineseDefaultEngines() []string {
-	return []string{"bing", "so360", "sogou", "zhwikipedia"}
+	return []string{"bing", "so360", "sogou", "toutiao", "zhwikipedia"}
 }
 
 func AllEngines() []string {

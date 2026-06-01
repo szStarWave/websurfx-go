@@ -18,7 +18,7 @@ func TestLoadMissingFileReturnsDefaultWithAllEngines(t *testing.T) {
 	if cfg.Search.Timeout != 10*time.Second {
 		t.Fatalf("unexpected timeout %s", cfg.Search.Timeout)
 	}
-	if len(cfg.Search.Engines) != 10 {
+	if len(cfg.Search.Engines) != 11 {
 		t.Fatalf("expected all engines, got %v", cfg.Search.Engines)
 	}
 	if cfg.Search.Engines[0] != "bing" || cfg.Search.Engines[len(cfg.Search.Engines)-1] != "searx" {
@@ -31,7 +31,7 @@ func TestLoadEmptyPathReturnsDefault(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(cfg.Search.Engines) != 10 {
+	if len(cfg.Search.Engines) != 11 {
 		t.Fatalf("expected all engines, got %v", cfg.Search.Engines)
 	}
 }

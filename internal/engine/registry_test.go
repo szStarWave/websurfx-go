@@ -3,7 +3,7 @@ package engine
 import "testing"
 
 func TestBuildAdditionalWebEngines(t *testing.T) {
-	names := []string{"duckduckgo", "brave", "qwant", "startpage", "yahoo", "searx:https://example.com"}
+	names := []string{"duckduckgo", "brave", "qwant", "startpage", "yahoo", "toutiao", "searx:https://example.com"}
 	engines, err := Build(names)
 	if err != nil {
 		t.Fatal(err)
