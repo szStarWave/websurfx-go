@@ -51,6 +51,44 @@ func TestAggregatorMergesRanksFiltersAndKeepsErrors(t *testing.T) {
 	}
 }
 
+func TestAggregatorPrioritizesOfficialTechnicalSources(t *testing.T) {
+	engines := []Engine{
+		fakeEngine{name: "so360", results: []Result{
+			{
+				Title:       "winml api reference microsoft - 360\u7ffb\u8bd1",
+				URL:         "https://fanyi.so.com/?src=onebox",
+				Description: "translation onebox",
+			},
+			{
+				Title:       "winml api reference microsoft - 360\u6587\u5e93",
+				URL:         "https://wenku.so.com/s?q=winml%20api",
+				Description: "document search landing page",
+			},
+		}},
+		fakeEngine{name: "bing", results: []Result{
+			{
+				Title:       "\u5fae\u8f6f_\u767e\u5ea6\u767e\u79d1",
+				URL:         "https://baike.baidu.com/item/%E5%BE%AE%E8%BD%AF/124767",
+				Description: "company encyclopedia page",
+			},
+			{
+				Title:       "Windows ML APIs in Windows.AI.MachineLearning | Microsoft Learn",
+				URL:         "https://learn.microsoft.com/windows/ai/windows-ml/api-reference",
+				Description: "Windows ML API reference for WinML model inference.",
+			},
+		}},
+	}
+	aggregator := NewAggregatorWithClient(http.DefaultClient, nil, engines, FilterOptions{})
+
+	response := aggregator.Search(context.Background(), Query{Text: "WinML API reference Microsoft", Page: 1})
+	if len(response.Results) == 0 {
+		t.Fatalf("expected ranked results")
+	}
+	if response.Results[0].URL != "https://learn.microsoft.com/windows/ai/windows-ml/api-reference" {
+		t.Fatalf("top result = %#v, want Microsoft Learn first; all=%#v", response.Results[0], response.Results)
+	}
+}
+
 func TestEncodeQuerySpecialCharacters(t *testing.T) {
 	if got := EncodeQuery("特朗普 open ai c++"); got != "%E7%89%B9%E6%9C%97%E6%99%AE+open+ai+c%2B%2B" {
 		t.Fatalf("unexpected encoded query %q", got)

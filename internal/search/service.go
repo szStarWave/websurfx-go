@@ -212,6 +212,14 @@ func scoreResult(query string, result Result) int {
 			score += 3
 		}
 	}
+	if isTechnicalQuery(query) {
+		if trustedTechnicalResult(host, title, description) {
+			score += 90
+		}
+		if lowValueTechnicalResult(host, title, description) {
+			score -= 100
+		}
+	}
 	return score
 }
 
@@ -221,6 +229,68 @@ func queryTerms(query string) []string {
 		raw = []string{strings.ToLower(strings.TrimSpace(query))}
 	}
 	return raw
+}
+
+func isTechnicalQuery(query string) bool {
+	query = strings.ToLower(query)
+	return containsAny(query,
+		"api", "reference", "documentation", "docs", "developer",
+		"winml", "windows ml", "windows machine learning",
+		"onnx", "directml", "openvino", "cuda", "rocm",
+		"runtime", "inference", "sdk",
+	)
+}
+
+func trustedTechnicalResult(host, title, description string) bool {
+	haystack := strings.Join([]string{host, title, description}, " ")
+	if containsAny(host,
+		"learn.microsoft.com",
+		"docs.microsoft.com",
+		"github.com",
+		"developer.microsoft.com",
+		"onnxruntime.ai",
+		"docs.nvidia.com",
+		"docs.openvino.ai",
+		"rocm.docs.amd.com",
+	) {
+		if containsAny(haystack, "microsoft learn", "official", "api", "reference", "documentation", "docs", "github", "windows ml", "winml", "onnx", "directml") {
+			return true
+		}
+	}
+	return containsAny(title, "microsoft learn", "official documentation", "api reference", "github - microsoft")
+}
+
+func lowValueTechnicalResult(host, title, description string) bool {
+	haystack := strings.Join([]string{host, title, description}, " ")
+	return containsAny(haystack,
+		"360文库",
+		"360翻译",
+		"360图片",
+		"360视频",
+		"wenku.so.com",
+		"fanyi.so.com",
+		"image.so.com",
+		"baike.baidu.com",
+		"blog.csdn.net",
+		"csdn文库",
+		"m365.cloud.microsoft",
+		"office.com",
+		"signup.live.com",
+		"microsoftstore.com.cn",
+		"microsoft 365 copilot",
+		"microsoft 365",
+		"surface_windows_office",
+	)
+}
+
+func containsAny(value string, needles ...string) bool {
+	for _, needle := range needles {
+		needle = strings.TrimSpace(strings.ToLower(needle))
+		if needle != "" && strings.Contains(value, needle) {
+			return true
+		}
+	}
+	return false
 }
 
 func cacheKey(query Query, engines []Engine) string {
